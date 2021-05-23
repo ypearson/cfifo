@@ -31,18 +31,18 @@ uint8_t cfifo_put(cfifo_t * cf, ds_t *val)
 
         if(head + 1 < buf + sz)
         {
-            if(head + 1 == tail)
+            if(head + 1 == tail) // full case
                 cf->head = 0;
             else
                 cf->head++;
         }
-        else if(tail == buf)
+        else if(tail == buf) // full wrap
             cf->head = 0;
         else
-            cf->head = cf->buf;
+            cf->head = cf->buf; // wrap back to buffer
 
         if(!tail)
-            cf->tail = head;
+            cf->tail = head; // bug??
 
         cf->cnt++;
     }
