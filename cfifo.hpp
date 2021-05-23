@@ -17,6 +17,7 @@ public:
     uint8_t get(T *val);
     uint8_t peek(T *val);
     uint16_t count(void);
+    uint8_t is_empty(void);
 };
 
 

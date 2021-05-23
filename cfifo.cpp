@@ -5,8 +5,8 @@ template <class T>
 Cfifo<T>::Cfifo(T *array, uint16_t sz) {
 
     buffer = array;
+    head = array;
     size = sz;
-    head = 0;
     tail = 0;
     cnt  = 0;
 
@@ -15,6 +15,10 @@ Cfifo<T>::Cfifo(T *array, uint16_t sz) {
         buffer[i] = 0;
     }
 }
+
+// head == 0 -> FULL
+// tail == 0 -> EMPTY
+// ASSERTS
 
 template <class T>
 Cfifo<T>::~Cfifo() {}
@@ -114,15 +118,4 @@ uint16_t Cfifo<T>::count(void)
     return cnt;
 }
 
-int main() {
 
-    uint8_t val = 10;
-    uint8_t buffer[8];
-
-    Cfifo<uint8_t> cfifo(buffer, 8);
-    cfifo.put(&val);
-
-    val = 0;
-    cfifo.get(&val);
-    printf("%d\n", val);
-}
