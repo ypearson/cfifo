@@ -1,4 +1,6 @@
 #include <cstdio>
+#include <cstdint>
+
 #include "cfifo.hpp"
 
 template <class T>
@@ -16,10 +18,6 @@ Cfifo<T>::Cfifo(T *array, uint16_t sz) {
     }
 }
 
-// head == 0 -> FULL
-// tail == 0 -> EMPTY
-// ASSERTS
-
 template <class T>
 Cfifo<T>::~Cfifo() {}
 
@@ -30,10 +28,8 @@ uint8_t Cfifo<T>::put(T *val)
 
     if(cnt < size)
     {
-        if(!head)
-            head = buffer;
-
         *head = *val;
+        T *phead = head;
 
         if(head + 1 < buffer + size)
         {
@@ -46,9 +42,8 @@ uint8_t Cfifo<T>::put(T *val)
             head = 0;
         else
             head = buffer;
-
         if(!tail)
-            tail = buffer;
+            tail = phead;
 
         cnt++;
     }
@@ -64,11 +59,13 @@ uint8_t Cfifo<T>::put(T *val)
 template <class T>
 uint8_t Cfifo<T>::get(T *val)
 {
-    uint8_t ret = 1;
+    uint8_t ret = 0;
 
     if(cnt)
     {
         *val = *tail;
+        T *ptail = tail;
+
         if(tail + 1 < buffer + size)
         {
             if(tail + 1 == head)
@@ -81,10 +78,9 @@ uint8_t Cfifo<T>::get(T *val)
         else
             tail = buffer;
         if(!head)
-            head = tail;
+            head = ptail;
 
         cnt--;
-        ret = 0;
     }
     else
     {
@@ -119,3 +115,4 @@ uint16_t Cfifo<T>::count(void)
 }
 
 
+template class Cfifo<uint8_t>;
