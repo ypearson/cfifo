@@ -10,8 +10,8 @@
 
 pthread_mutex_t lock;
 
-uint8_t buffer[5];
-Cfifo<uint8_t> cfifo(buffer, 5);
+uint8_t buffer[7];
+Cfifo<uint8_t> cfifo(buffer, 7);
 
 uint8_t g_value = 0;
 

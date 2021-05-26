@@ -1,11 +1,37 @@
-#include <cstdio>
+#pragma once
 #include <cstdint>
 
-#include "cfifo.hpp"
+template <class T>
+class Cfifo {
+private:
+    T *buffer;
+    T *head;
+    T *tail;
+    uint16_t  size;
+    uint16_t  cnt;
+public:
+    Cfifo(T *buffer, uint16_t size)  {
+        buffer = array;
+        head = array;
+        size = sz;
+        tail = 0;
+        cnt  = 0;
+        for(uint16_t i = 0; i < size; i++)
+        {
+            buffer[i] = 0;
+        }
+    } 
+    ~Cfifo();
+    uint8_t put(T *val);
+    uint8_t put(T val);
+    uint8_t get(T *val);
+    uint8_t peek(T *val);
+    uint16_t count(void);
+    uint8_t is_empty(void);
+};
 
 template <class T>
 Cfifo<T>::Cfifo(T *array, uint16_t sz) {
-
     buffer = array;
     head = array;
     size = sz;
@@ -24,7 +50,7 @@ Cfifo<T>::~Cfifo() {}
 template <class T>
 uint8_t Cfifo<T>::put(T *val)
 {
-    uint8_t ret = 0;
+    uint8_t err = 0;
 
     if(cnt < size)
     {
@@ -33,7 +59,7 @@ uint8_t Cfifo<T>::put(T *val)
 
         if(head + 1 < buffer + size)
         {
-            if(head + 1 == tail)
+            if(head + 1 == tail) // full
                 head = 0;
             else
                 head++;
@@ -50,16 +76,15 @@ uint8_t Cfifo<T>::put(T *val)
     else
     {
         head = 0;
-        ret = 1;
+        err = 1;
     }
-
-    return ret;
+    return err;
 }
 
 template <class T>
 uint8_t Cfifo<T>::get(T *val)
 {
-    uint8_t ret = 0;
+    uint8_t err = 0;
 
     if(cnt)
     {
@@ -68,7 +93,7 @@ uint8_t Cfifo<T>::get(T *val)
 
         if(tail + 1 < buffer + size)
         {
-            if(tail + 1 == head)
+            if(tail + 1 == head) // empty
                 tail = 0;
             else
                 tail++;
@@ -85,16 +110,16 @@ uint8_t Cfifo<T>::get(T *val)
     else
     {
         tail = 0;
-        ret = 1;
+        err = 1;
     }
 
-    return ret;
+    return err;
 }
 
 template <class T>
 uint8_t Cfifo<T>::peek(T *val)
 {
-    uint8_t ret = 0;
+    uint8_t err = 0;
 
     if(cnt)
     {
@@ -102,10 +127,10 @@ uint8_t Cfifo<T>::peek(T *val)
     }
     else
     {
-        ret = 1;
+        err = 1;
     }
 
-    return ret;
+    return err;
 }
 
 template <class T>
@@ -115,4 +140,4 @@ uint16_t Cfifo<T>::count(void)
 }
 
 
-template class Cfifo<uint8_t>;
+
