@@ -19,7 +19,7 @@ void *myThread1(void *vargp)
 {
     for (int i = 0; i < 25; ++i)
     {
-        usleep(SLEEP);
+        usleep(2000000);
         if(!cfifo.put(&g_value))
         {
             printf("\033[0;31m1.Put %u\n", (int)g_value);
@@ -45,11 +45,11 @@ void *myThread2(void *vargp)
         uint8_t val = 0;
         if(!cfifo.get(&val))
         {
-            printf("\033[0;32m2.Get %d\n",(int)val);
+            printf("\033[0;32m1.Get %d\n",(int)val);
         }
         else
         {
-            printf("\033[0;32m2.Empty!\n");
+            printf("\033[0;32m1.Empty!\n");
         }
     }
     return 0;
@@ -62,7 +62,7 @@ void *myThread3(void *vargp)
         usleep(SLEEP);
         if(!cfifo.put(&g_value))
         {
-            printf("\033[0;31m3.Put %u\n", (int)g_value);
+            printf("\033[0;31m2.Put %u\n", (int)g_value);
             pthread_mutex_lock(&lock);
             g_value++;
             g_value %= 10;
@@ -70,7 +70,7 @@ void *myThread3(void *vargp)
         }
         else
         {
-            printf("\033[0;31m3.Full!\n");
+            printf("\033[0;31m2.Full!\n");
         }
     }
     return 0;
@@ -85,11 +85,11 @@ void *myThread4(void *vargp)
         uint8_t val = 0;
         if(!cfifo.get(&val))
         {
-            printf("\033[0;32m4.Get %d\n",(int)val);
+            printf("\033[0;32m2.Get %d\n",(int)val);
         }
         else
         {
-            printf("\033[0;32m4.Empty!\n");
+            printf("\033[0;32m2.Empty!\n");
         }
     }
     return 0;
