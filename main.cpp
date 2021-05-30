@@ -33,6 +33,12 @@ void *threadA(void *vargp)
         {
             // printf("\033[0;31m1.Full!\n");
         }
+
+        if(i % 100 == 0)
+        {
+            printf("%s","W");
+            fflush(stdout);
+        }
     }
     return 0;
 }
@@ -63,6 +69,12 @@ void *threadB(void *vargp)
         else
         {
             // printf("\033[0;32m2.Empty!\n");
+        }
+
+        if(i % 100 == 0)
+        {
+            printf("%s","R");
+            fflush(stdout);
         }
 
     }
