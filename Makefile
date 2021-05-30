@@ -1,3 +1,2 @@
 all:
-	g++ -g main.cpp -std=c++17 -lpthread -o cfifo -Wfatal-errors
-# 	g++ -g main.cpp cfifo.cpp -std=c++17 -lpthread -o cfifo
+	g++ -g -std=c++17 main.cpp circularBuffer.cpp  -lpthread -o cfifo -Wall -Wextra -Wfatal-errors -Wpedantic -Werror=return-type
