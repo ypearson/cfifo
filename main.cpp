@@ -9,8 +9,6 @@
 #define SLEEP2 rand()%5000+500
 #define SLEEP1 rand()%5000+500
 
-uint8_t lock = 0;
-uint8_t buffer[8];
 Cfifo<uint8_t> cfifo(buffer, 7);
 
 uint8_t g_value = 0;

@@ -1,18 +1,26 @@
 #pragma once
 #include <cstdint>
-#include <cstdio>
-#include <atomic>
 
 template <class T>
 class Cfifo {
 private:
     T *buffer;
-    T *write;
-    T *read;
+    T *head;
+    T *tail;
     uint16_t  size;
     uint16_t  cnt;
 public:
-    Cfifo(T *array, uint16_t sz);
+    Cfifo(T *buffer, uint16_t size)  {
+        buffer = array;
+        head = array;
+        size = sz;
+        tail = 0;
+        cnt  = 0;
+        for(uint16_t i = 0; i < size; i++)
+        {
+            buffer[i] = 0;
+        }
+    } 
     ~Cfifo();
     uint8_t put(T *val);
     uint8_t put(T val);
@@ -25,9 +33,9 @@ public:
 template <class T>
 Cfifo<T>::Cfifo(T *array, uint16_t sz) {
     buffer = array;
-    write = array;
+    head = array;
     size = sz;
-    read = 0;
+    tail = 0;
     cnt  = 0;
 
     for(uint16_t i = 0; i < size; i++)
@@ -46,33 +54,28 @@ uint8_t Cfifo<T>::put(T *val)
 
     if(cnt < size)
     {
-        *write = *val;
-        T *pwrite = write;
+        *head = *val;
+        T *phead = head;
 
-        if(write + 1 < buffer + size)
+        if(head + 1 < buffer + size)
         {
-            if(write + 1 == read) // full
-                {write = 0;
-                 printf("\033[0;31m1.W[%lx]\n", 0);}
-
-            else{
-                write++;
-                printf("\033[0;31m1.W[%lx]\n", write-buffer);
-            }
+            if(head + 1 == tail) // full
+                head = 0;
+            else
+                head++;
         }
-        else if(read == buffer)
-            write = 0;
+        else if(tail == buffer)
+            head = 0;
         else
-            write = buffer;
-        if(!read)
-            read = pwrite;
+            head = buffer;
+        if(!tail)
+            tail = phead;
 
         cnt++;
-        // printf("\033[0;31m1.W cnt = %d\n", cnt);
     }
     else
     {
-        write = 0;
+        head = 0;
         err = 1;
     }
     return err;
@@ -85,35 +88,28 @@ uint8_t Cfifo<T>::get(T *val)
 
     if(cnt)
     {
-        *val = *read;
-        T *pread = read;
+        *val = *tail;
+        T *ptail = tail;
 
-        if(read + 1 < buffer + size)
+        if(tail + 1 < buffer + size)
         {
-            if(read + 1 == write) // empty
-               { read = 0;
-                printf("\033[0;32m2.R[%lx]\n", 0);
-            }
-            else{
-                read++;
-                printf("\033[0;32m2.R[%lx]\n", read-buffer);
-
-            }
+            if(tail + 1 == head) // empty
+                tail = 0;
+            else
+                tail++;
         }
-        else if (write == buffer)
-            read = 0;
+        else if (head == buffer)
+            tail = 0;
         else
-            read = buffer;
-        if(!write)
-            write = pread;
+            tail = buffer;
+        if(!head)
+            head = ptail;
 
         cnt--;
-        // printf("\033[0;32m2.R cnt = %d\n", cnt);
-
     }
     else
     {
-        read = 0;
+        tail = 0;
         err = 1;
     }
 
@@ -127,7 +123,7 @@ uint8_t Cfifo<T>::peek(T *val)
 
     if(cnt)
     {
-        *val = *read;
+        *val = *tail;
     }
     else
     {
