@@ -14,5 +14,5 @@ public:
     uint16_t length(void);
     uint8_t write(uint32_t data);
     uint8_t read(uint32_t *data);
-    uint8_t CircularBuffer::peek(uint32_t &data);
+    uint8_t peek(uint32_t *data);
 };

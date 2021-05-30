@@ -28,8 +28,9 @@ uint8_t CircularBuffer::write(uint32_t data) {
     return 0;
 }
 
-uint8_t CircularBuffer::peek(uint32_t &data) {
+uint8_t CircularBuffer::peek(uint32_t *data) {
     if(length() == 0)
         return 1;
     *data = buffer[_read];
+    return 0;
 }

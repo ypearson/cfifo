@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <cstdint>
 
-#define LOOPS 1000000
+#define LOOPS 10000000
 #define SLEEP2 rand()%5000+500
 #define SLEEP1 rand()%10000+500
 
@@ -23,7 +23,7 @@ void *threadA(void *vargp)
         usleep(SLEEP1);
         if(!cb.write(g_value))
         {
-            printf("\033[0;31m1.Put %u\n", (int)g_value);
+            // printf("\033[0;31m1.Put %u\n", (int)g_value);
             g_value++;
             g_value %= 100;
             if(lock>5)
@@ -31,7 +31,7 @@ void *threadA(void *vargp)
         }
         else
         {
-            printf("\033[0;31m1.Full!\n");
+            // printf("\033[0;31m1.Full!\n");
         }
     }
     return 0;
@@ -62,7 +62,7 @@ void *threadB(void *vargp)
         }
         else
         {
-            printf("\033[0;32m2.Empty!\n");
+            // printf("\033[0;32m2.Empty!\n");
         }
 
     }
