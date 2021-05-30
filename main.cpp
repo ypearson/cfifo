@@ -47,7 +47,7 @@ void *threadB(void *vargp)
         static uint32_t cval = 0;
         if(!cb.read(&val))
         {
-            printf("\033[0;32m2.Get %d\n",(int)val);
+            // printf("\033[0;32m2.Get %d\n",(int)val);
 
             if(val != cval)
             {
@@ -75,6 +75,9 @@ int main() {
     pthread_create(&thread_id, NULL, threadA, NULL);
     pthread_create(&thread_id, NULL, threadB, NULL);
     pthread_join(thread_id, NULL);
+
+    printf("Done!\n");
+
 
 }
 
