@@ -87,11 +87,11 @@ void sw_timer_init(void)
         m_swti[i].pri_cnt   = 0;
         m_swti[i].sec_start = 0;
         m_swti[i].enable    = 0;
-        m_swti[i].only_once = 0;
+        m_swti[i].one_shot = 0;
     }
 }
 
-uint8_t sw_timer_create(sw_timer_t *swt, uint8_t slot, uint8_t only_once)
+uint8_t sw_timer_create(sw_timer_t *swt, uint8_t slot, uint8_t one_shot)
 {
     uint16_t task_id;
 
@@ -115,7 +115,7 @@ uint8_t sw_timer_create(sw_timer_t *swt, uint8_t slot, uint8_t only_once)
     m_swte[task_id]->slot     = slot;
     m_swti[task_id].ref_time  = m_timer;
     m_swti[task_id].enable    = 0;
-    m_swti[task_id].only_once = only_once;
+    m_swti[task_id].one_shot = one_shot;
 
     return slot;
 }
@@ -265,7 +265,7 @@ void sw_timer_run(void)
             m_swti[task_id].ref_time = m_timer;
         }
 
-        if(put_flag || !m_swti[task_id].only_once)
+        if(put_flag || !m_swti[task_id].one_shot)
         {
             cfifo_put(&m_cfifo, &task_id);
         }

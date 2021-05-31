@@ -5,13 +5,14 @@
 #include <cstdint>
 
 #define LOOPS 1'000'000
-#define SLEEP2 rand()%5000+500
-#define SLEEP1 rand()%10000+500
+#define CONSUMER_SLEEP rand()%5000+500
+#define PRODUCER_SLEEP rand()%1000+500
 
 #include "circularBuffer_template.hpp"
 
 uint32_t buffer[8];
 CircularBuffer<uint32_t> cb{buffer,8};
+
 uint32_t g_value = 0;
 uint8_t lock = 0;
 
@@ -20,7 +21,7 @@ void *threadA(void *vargp)
     (void)vargp;
     for (uint32_t i = 0; i < LOOPS; ++i)
     {
-        usleep(SLEEP1);
+        usleep(PRODUCER_SLEEP);
         if(!cb.write(g_value))
         {
             // printf("\033[0;31m1.Put %u\n", (int)g_value);
@@ -48,7 +49,7 @@ void *threadB(void *vargp)
     (void)vargp;
     for (uint32_t i = 0; i < LOOPS; ++i)
     {
-        usleep(SLEEP2);
+        usleep(CONSUMER_SLEEP);
         uint32_t val = 0;
         static uint32_t cval = 0;
         if(!cb.read(&val))

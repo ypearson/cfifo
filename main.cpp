@@ -4,7 +4,7 @@
 #include <pthread.h>
 #include <cstdint>
 
-#define LOOPS 10000000
+#define LOOPS 1'000'000'000
 #define SLEEP2 rand()%5000+500
 #define SLEEP1 rand()%10000+500
 
