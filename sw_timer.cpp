@@ -12,9 +12,10 @@ static volatile uint32_t m_timer;
 // static _sw_timer_t  m_swti[SW_TIMER_SLOTS];
 // static uint8_t m_slots[SW_TIMER_SLOTS] = {1,2,3,4,5,6,7,8};
 
-TimerTask::TimerTask(fp_t primary, fp_t secondary, const char *description, bool one_shot) : primary(primary), secondary(secondary), one_shot(one_shot),
-                                                                                             period_primary(0), period_secondary(0), cycle_counter(0),
-                                                                                             cycle_max(0), description(description), secondary_started(false)
+TimerTask::TimerTask(fp_t primary, fp_t secondary, uint32_t *timer, const char *description, bool one_shot) : primary(primary), secondary(secondary), one_shot(one_shot),
+                                                                                                              period_primary(0), period_secondary(0), cycle_counter(0),
+                                                                                                              cycle_max(0), description(description), secondary_started(false),
+                                                                                                              timer(timer)
 {
 }
 
@@ -23,7 +24,7 @@ void TimerTask::setPeriod(uint16_t prim, uint16_t sec)
     period_primary = prim;
     period_secondary = sec;
 }
-uint16_t TimerTask::getSecondaryPeriod(void)
+uint16_t TimerTask::getPrimaryPeriod(void)
 {
     return period_primary;
 }
@@ -67,7 +68,7 @@ bool TimerTask::didSecondaryStart(void)
 }
 void TimerTask::execute_primary(void)
 {
-    if(primary)
+    if (primary)
     {
         primary();
         cycle_counter++;
@@ -76,12 +77,47 @@ void TimerTask::execute_primary(void)
 
 void TimerTask::execute_secondary(void)
 {
-    if(secondary)
+    if (secondary)
     {
         secondary();
     }
 }
+uint16_t TimerTask::getCycleCount(void)
+{
+    return cycle_counter;
+}
+bool TimerTask::isCycleComplete(void)
+{
+    return (cycle_counter >= cycle_max) && (cycle_max > 0U);
+}
+void TimerTask::cycleReset(void)
+{
+    cycle_counter = 0;
+}
+bool TimerTask::isTaskReady(void)
+{
+    uint32_t trig_time = ref_time + period_primary;
 
+    bool period_elapsed = (trig_time > ref_time) && (*timer >= trig_time);
+    bool period_elasped_rollover = (*timer < ref_time) && (*timer >= trig_time);
+
+    period_elapsed |= period_elasped_rollover;
+
+    if (period_elapsed && secondary_started)
+    {
+        execute_primary();
+        ref_time = *timer;
+
+        #define TASK_MAX_EXECUTIONS      (m_swti[task_id].pri_cnt >= m_swte[task_id]->pri_max && m_swte[task_id]->pri_max && !m_swte[task_id]->sec_period)
+
+        cycle_counter >= cycle_max && cycle_max //START HERE
+
+        if
+    }
+
+    //     #define PERIOD_ELAPSED (trig_time > tt[task].getReferenceTime() && m_timer >= trig_time)
+    // #define PERIOD_ELAPSED_ROLLOVER (m_timer < tt[task].getReferenceTime() && m_timer >= trig_time)
+}
 
 void led_on(void)
 {
@@ -291,8 +327,8 @@ void sw_timer_run(void)
 {
 #define PERIOD_ELAPSED (trig_time > tt[task].getReferenceTime() && m_timer >= trig_time)
 #define PERIOD_ELAPSED_ROLLOVER (m_timer < tt[task].getReferenceTime() && m_timer >= trig_time)
-#define TASK_MAX_EXECUTIONS (m_swti[task_id].pri_cnt >= m_swte[task_id]->pri_max && m_swte[task_id]->pri_max && !m_swte[task_id]->sec_period)
-#define SUBTASK_MAX_EXECUTIONS (m_swti[task_id].pri_cnt >= m_swte[task_id]->pri_max && m_swte[task_id]->pri_max)
+#define TASK_MAX_EXECUTIONS (tt[task].isCycleComplete() && tt[task].getSecondaryPeriod() == 0)
+#define SUBTASK_MAX_EXECUTIONS (tt[task].isCycleComplete())
 
     uint16_t trig_time, task_id, task;
 
@@ -310,8 +346,9 @@ void sw_timer_run(void)
                 tt[task].execute_primary();
                 tt[task].setReferenceTime(m_timer);
 
-                if(TASK_MAX_EXECUTIONS)// START from here
-
+                if (TASK_MAX_EXECUTIONS)
+                {
+                }
             }
         }
     }
