@@ -19,23 +19,18 @@ private:
     bool enabled;
     bool one_shot;
     bool secondary_started;
+    void execute_primary(void);
+    void execute_secondary(void);
+    bool isCycleComplete(void);
+    bool periodElapsed(uint32_t period);
+
 public:
-    TimerTask(fp_t, fp_t , volatile uint32_t *, const char *, bool);
-    void setPeriod(uint16_t, uint16_t);
-    uint16_t getPrimaryPeriod(void);
-    uint16_t getSecondaryPeriod(void);
+    TimerTask(fp_t, fp_t, volatile uint32_t *, const char *, bool);
+    void setPeriod(uint16_t prim, uint16_t sec);
     void enable_task(void);
     void disable_task(void);
     bool is_enabled(void);
-    void setReferenceTime(uint32_t);
-    uint32_t getReferenceTime(void);
     const char *getDescription(void);
-    void setSecondary(bool);
-    bool didSecondaryStart(void);
-    void execute_primary(void);
-    void execute_secondary(void);
     uint16_t getCycleCount(void);
-    bool isCycleComplete(void);
-    void cycleReset(void);
     bool mainLoop(void);
 };
