@@ -1,107 +1,86 @@
 #include "TimerTask.hpp"
 
-TimerTask::TimerTask(fp_t primary, fp_t secondary, volatile uint32_t *timer, const char *description, bool one_shot) : primary(primary), secondary(secondary), one_shot(false),
-                                                                                                                       period_primary(0), period_secondary(0), cycle_counter(0),
-                                                                                                                       cycle_max(0), description(description), secondary_started(false),
-                                                                                                                       timer(timer)
+namespace app::os
 {
-}
 
-void TimerTask::setPeriod(uint16_t prim, uint16_t sec)
-{
-    period_primary = prim;
-    period_secondary = sec;
-}
-void TimerTask::enable_task(void)
-{
-    enabled = true;
-}
-void TimerTask::disable_task(void)
-{
-    enabled = false;
-}
-bool TimerTask::is_enabled(void)
-{
-    return enabled;
-}
-const char *TimerTask::getDescription(void)
-{
-    return description;
-}
-void TimerTask::execute_primary(void)
-{
-    if (primary)
+    TimerTask::TimerTask(task_list_t *task_list, uint16_t cycles, const char *description) : task_list(task_list), cycle_max(cycles), description(description), enabled(false)
     {
-        primary();
-        cycle_counter++;
     }
-}
-void TimerTask::execute_secondary(void)
-{
-    if (secondary)
+    void TimerTask::start(void)
     {
-        secondary();
+        enabled = true;
+        cycle_counter = 0;
+        subtask_id = 0;
+        set_t_equals_zero();
     }
-}
-uint16_t TimerTask::getCycleCount(void)
-{
-    return cycle_counter;
-}
-bool TimerTask::isCycleComplete(void)
-{
-    return (cycle_counter >= cycle_max) && (cycle_max > 0U);
-}
-bool TimerTask::periodElapsed(uint32_t period)
-{
-    uint32_t trig_time = ref_time + period;
-    bool period_elapsed = (trig_time > ref_time) && (*timer >= trig_time);
-    bool period_elasped_rollover = (*timer < ref_time) && (*timer >= trig_time);
-    period_elapsed |= period_elasped_rollover;
-
-    return period_elapsed;
-}
-bool TimerTask::mainLoop(void)
-{
-    if (enabled)
+    void TimerTask::stop(void)
     {
-        if (!secondary_started)
+        enabled = false;
+    }
+    bool TimerTask::is_enabled(void)
+    {
+        return enabled;
+    }
+    const char *TimerTask::getDescription(void)
+    {
+        return description;
+    }
+    uint8_t TimerTask::set_t_equals_zero(void)
+    {
+        uint8_t err = 1;
+        if (timer != nullptr)
         {
-            if (periodElapsed(period_primary))
+            ref_time = *timer;
+            err = 0;
+        }
+        return err;
+    }
+    uint16_t TimerTask::getCycleCount(void)
+    {
+        return cycle_counter;
+    }
+    bool TimerTask::isSequenceComplete(void)
+    {
+        return (cycle_counter >= cycle_max) && (cycle_max > 0U);
+    }
+    bool TimerTask::periodElapsed(uint32_t period)
+    {
+        uint32_t trig_time = ref_time + period;
+        uint32_t t = *timer;
+        bool period_elapsed = (trig_time > ref_time) && (t >= trig_time);
+        bool period_elasped_rollover = (t < ref_time) && (t >= trig_time);
+        period_elapsed |= period_elasped_rollover;
+        return period_elapsed;
+    }
+    bool TimerTask::scheduler(void)
+    {
+        bool executed_task = false;
+        if (enabled)
+        {
+            if (subtask_id < task_list->len)
             {
-                execute_primary();
-                ref_time = *timer;
-
-                if (isCycleComplete() && !period_secondary)
+                if (periodElapsed(task_list->periods[subtask_id]))
                 {
-                    cycle_counter = 0;
-                    enabled = 0;
+                    if (task_list->executables[subtask_id] != nullptr)
+                    {
+                        task_list->executables[subtask_id]();
+                        subtask_id++;
+                        set_t_equals_zero();
+                        executed_task = true;
+                    }
                 }
-
-                if (period_secondary)
+            }
+            else
+            {
+                cycle_counter++;
+                subtask_id = 0;
+                set_t_equals_zero();
+                if (isSequenceComplete() == true)
                 {
-                    secondary_started = 1;
+                    enabled = false;
                 }
             }
         }
-        else
-        {
-            if (periodElapsed(period_secondary))
-            {
-                execute_secondary();
-                ref_time = *timer;
-                secondary_started = 0;
-
-                if (isCycleComplete())
-                {
-                    cycle_counter = 0;
-                    enabled = 0;
-                }
-            }
-        }
+        return executed_task;
     }
-    else
-    {
-        ref_time = *timer;
-    }
-    return true;
 }
