@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+
 namespace app::os
 {
     static constexpr uint8_t task_list_len = 8;
@@ -9,7 +10,7 @@ namespace app::os
     {
         fp_t executables[task_list_len];
         uint32_t periods[task_list_len];
-        uint8_t len = task_list_len;
+        uint8_t len;
     } task_list_t;
 
     class TimerTask
@@ -23,15 +24,16 @@ namespace app::os
         const char *description;
         bool enabled;
         bool periodElapsed(uint32_t period);
-        uint8_t set_t_equals_zero(void);
+        uint8_t setTEqualsZero(void);
+        bool ready_to_executed_task;
 
     public:
         TimerTask(task_list_t *task_list, uint16_t cycles, const char *description);
         static volatile uint32_t *const timer;
         void start(void);
         void stop(void);
-        bool is_enabled(void);
-        bool isSequenceComplete(void);
+        bool isEnabled(void);
+        bool isDone(void);
         const char *getDescription(void);
         uint16_t getCycleCount(void);
         bool scheduler(void);

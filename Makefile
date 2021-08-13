@@ -9,7 +9,7 @@ template:
 	g++ -g -std=c++17 cb_template_test.cpp  ${FLAGS} -lpthread -o cb_template_test
 
 timer:
-	g++ -g -std=c++17 TimerTask.cpp timerTask_test.cpp   ${FLAGS} -lpthread -o timerTask_test
+	g++ -g -std=c++17 TimerTask.cpp timerTask_test.cpp TaskRunner.cpp ${FLAGS} -lpthread -o timerTask_test
 
 cli:
 	g++ -g -std=c++17 cli.cpp  circularBuffer.cpp ${FLAGS} -o cli_test
