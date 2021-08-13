@@ -2,8 +2,7 @@
 
 namespace app::os
 {
-    TimerTask::TimerTask(task_list_t *task_list, uint16_t cycles, const char *description) :
-        task_list(task_list), cycle_max(cycles), description(description), enabled(false)
+    TimerTask::TimerTask(task_list_t *task_list, uint16_t cycles, const char *description) : task_list(task_list), cycle_max(cycles), description(description), enabled(false)
     {
     }
     void TimerTask::start(void)
@@ -63,9 +62,9 @@ namespace app::os
                 if (ready_to_executed_task == true)
                 {
                     task_list->executables[subtask_id]();
-                    setTEqualsZero();
                     ready_to_executed_task = false;
                     executed = true;
+                    setTEqualsZero();
                 }
                 else if (periodElapsed(task_list->periods[subtask_id]))
                 {
@@ -76,12 +75,12 @@ namespace app::os
             else
             {
                 cycle_counter++;
-                subtask_id = 0;
-                setTEqualsZero();
                 if (isDone() == true)
                 {
                     enabled = false;
                 }
+                subtask_id = 0;
+                setTEqualsZero();
             }
         }
         return executed;
